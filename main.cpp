@@ -32,7 +32,7 @@ void translatorZConnectionException(ZConnectionException const& err) {
     PyErr_SetObject(cppZConnectionExceptionType, incref(pythonExceptionInstance.ptr()));
 }
 
-BOOST_PYTHON_MODULE(libyaz4pyboost)
+BOOST_PYTHON_MODULE(yaz4python)
 {
     //Исключения транслируемые в питон
     //есть проблема с наследованием, т.е. исключение нельзя поймать родителем
@@ -115,6 +115,7 @@ BOOST_PYTHON_MODULE(libyaz4pyboost)
     class_<ZRecord>("ZRecord", init<ZResultSet*, int>())
         .def("render", &ZRecord::render)
         .def("raw", &ZRecord::raw)
+        .def("get", &ZRecord::get)
     ;
     
     class_<ZResultSet>("ZResultSet", init<ZConnection *, const ZQuery&>())
@@ -123,5 +124,6 @@ BOOST_PYTHON_MODULE(libyaz4pyboost)
         .def("getRecord", &ZResultSet::getRecord, return_value_policy<manage_new_object>())
         .def("setSetName", &ZResultSet::setSetName)
         .def("setSchema", &ZResultSet::setSchema)
+        .def("setSyntax", &ZResultSet::setSyntax)
     ;
 }

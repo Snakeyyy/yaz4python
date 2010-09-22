@@ -41,3 +41,8 @@ string ZRecord::raw() const {
     return string(data, len);
 }
 
+string ZRecord::get(const string& param){
+    int len;
+    const char* data = ZOOM_record_get(this->zr, param.c_str(), &len);
+    return string(data, len);
+}

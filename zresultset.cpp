@@ -48,3 +48,7 @@ void ZResultSet::setSetName(const string& param){
 void ZResultSet::setSchema(const string& param){
     this->setOption("schema", param);
 }
+
+void ZResultSet::setSyntax(const string& param){
+    this->setOption("preferredRecordSyntax", param);
+}

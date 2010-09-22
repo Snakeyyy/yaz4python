@@ -16,5 +16,4 @@ ZQuery::ZQuery(const string& query):q(ZOOM_query_create()){
 }
 ZQuery::~ZQuery(){
     ZOOM_query_destroy(this->q);
-    cout << "qd";
 }

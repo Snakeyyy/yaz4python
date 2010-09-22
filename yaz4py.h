@@ -111,6 +111,7 @@ public:
 
     void setSetName(const string&);
     void setSchema(const string&);
+    void setSyntax(const string&);
 };
 
 class ZRecord{
@@ -124,6 +125,7 @@ public:
     void del() {this->~ZRecord();}
     string render () const;
     string raw () const;
+    string get(const string&);
 
 };
 #endif	/* YAZ4PY_H */
