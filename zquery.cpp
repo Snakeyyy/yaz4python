@@ -1,5 +1,4 @@
 #include "yaz4py.h"
-#include <iostream>
 #include <string>
 using namespace std;
 /**

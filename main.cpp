@@ -1,8 +1,7 @@
 #include <boost/python.hpp>
 #include <boost/python/exception_translator.hpp>
-#include <iostream>
 #include "yaz4py.h"
-
+#include "Python.h"
 using namespace boost::python;
 using namespace std;
 
