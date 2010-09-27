@@ -3,17 +3,15 @@
 #include <string.h>
 using namespace std;
 
-//ZConnection::ZConnection(){
-//    ZOOM_options o = ZOOM_options_create();
-//    this->zc = ZOOM_connection_create(o);
-//    ZOOM_options_destroy(o);
-//}
 /**
  *
  * @param zo
  */
 ZConnection::ZConnection(const ZOptions* zo){
     this->zc = ZOOM_connection_create(zo->_getYazOptions());
+    if(this->zc == NULL){
+        throw RunTimeError("Connection object not created");
+    }
 }
 ZConnection::~ZConnection() {
     ZOOM_connection_destroy(this->zc);
@@ -32,10 +30,9 @@ void ZConnection::connect(const string &hostname, int portnum){
     if ((errcode = ZOOM_connection_error(this->zc, &errmsg, &addinfo)) != 0) {
     	string emessage(errmsg);
     	string eaddinfo(addinfo);
-    	string message = emessage + " " + eaddinfo;
+    	string message = emessage + ": " + eaddinfo;
         throw ZConnectionException(message, errcode);
     }
-
 }
 /**
  * 
@@ -44,5 +41,8 @@ void ZConnection::connect(const string &hostname, int portnum){
  */
 ZResultSet* ZConnection::search(const ZQuery &zq){
     ZResultSet *rs = new ZResultSet(this, zq);
+    if(rs == NULL){
+        throw RunTimeError("Result set object not created");
+    }
     return rs;
 }

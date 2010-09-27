@@ -6,30 +6,30 @@ using namespace boost::python;
 using namespace std;
 
 
-PyObject *cppZExceptionType = NULL;
+PyObject *cppRunTimeErrorType = NULL;
 PyObject *cppZQueryExceptionType = NULL;
 PyObject *cppZResultSetExceptionType = NULL;
 PyObject *cppZConnectionExceptionType = NULL;
 
 //Трансляторы исключений
-void translatorZException(ZException const& err) {
-    boost::python::object pythonExceptionInstance(err);
-    PyErr_SetObject(cppZExceptionType, incref(pythonExceptionInstance.ptr()));
+void translatorRunTimeError(RunTimeError const& err) {
+    PyErr_SetString(PyExc_RuntimeError, err.getMessage().c_str());
 }
 
 void translatorZQueryException(ZQueryException const& err) {
     boost::python::object pythonExceptionInstance(err);
-    PyErr_SetObject(cppZQueryExceptionType, incref(pythonExceptionInstance.ptr()));
+    PyErr_SetObject(cppZQueryExceptionType, pythonExceptionInstance.ptr());
 }
 
 void translatorZResultSetException(ZResultSetException const& err) {
     boost::python::object pythonExceptionInstance(err);
-    PyErr_SetObject(cppZResultSetExceptionType, incref(pythonExceptionInstance.ptr()));
+    PyErr_SetObject(cppZResultSetExceptionType, pythonExceptionInstance.ptr());
 }
 
 void translatorZConnectionException(ZConnectionException const& err) {
     boost::python::object pythonExceptionInstance(err);
-    PyErr_SetObject(cppZConnectionExceptionType, incref(pythonExceptionInstance.ptr()));
+    PyErr_SetObject(cppZConnectionExceptionType, pythonExceptionInstance.ptr());
+
 }
 
 BOOST_PYTHON_MODULE(yaz4python)
@@ -37,70 +37,62 @@ BOOST_PYTHON_MODULE(yaz4python)
     //Исключения транслируемые в питон
     //есть проблема с наследованием, т.е. исключение нельзя поймать родителем
     //!надо как-то решить!
-    boost::python::class_<ZException>
-        ZExceptionClass("ZException",
-            boost::python::init<const string&, const int>())
-    ;
-    ZExceptionClass.add_property("message", &ZException::getMessage);
-    ZExceptionClass.add_property("__str__", &ZException::getMessage);
-    ZExceptionClass.add_property("code", &ZException::getCode);
 
-    cppZExceptionType = ZExceptionClass.ptr();
-    boost::python::register_exception_translator<ZException>
-            (&translatorZException)
+    register_exception_translator<RunTimeError>
+            (&translatorRunTimeError)
     ;
 
     ///////////////////////////////////////////////////////////////////////////
-    boost::python::class_<ZQueryException, bases<ZException> >
+    class_<ZQueryException>
         ZQueryExceptionClass("ZQueryException",
-            boost::python::init<const string&, const int>())
+            init<const string&, const int>())
     ;
     ZQueryExceptionClass.add_property("message", &ZQueryException::getMessage);
-    ZQueryExceptionClass.add_property("__str__", &ZQueryException::getMessage);
+    ZQueryExceptionClass.def("__str__", &ZQueryException::getMessage);
     ZQueryExceptionClass.add_property("code", &ZQueryException::getCode);
 
     cppZQueryExceptionType = ZQueryExceptionClass.ptr();
-    boost::python::register_exception_translator<ZQueryException>
+    register_exception_translator<ZQueryException>
             (&translatorZQueryException)
     ;
     ///////////////////////////////////////////////////////////////////////////
-    boost::python::class_<ZResultSetException, bases<ZException> >
+    class_<ZResultSetException>
         ZResultSetExceptionClass("ZResultSetException",
-            boost::python::init<const string&, const int>())
+            init<const string&, const int>())
     ;
     ZResultSetExceptionClass.add_property("message", &ZResultSetException::getMessage);
-    ZResultSetExceptionClass.add_property("__str__", &ZResultSetException::getMessage);
+    ZResultSetExceptionClass.def("__str__", &ZResultSetException::getMessage);
     ZResultSetExceptionClass.add_property("code", &ZResultSetException::getCode);
 
     cppZResultSetExceptionType = ZResultSetExceptionClass.ptr();
-    boost::python::register_exception_translator<ZResultSetException>
+    register_exception_translator<ZResultSetException>
             (&translatorZResultSetException)
     ;
     ///////////////////////////////////////////////////////////////////////////
-    boost::python::class_<ZConnectionException, bases<ZException> >
+    class_<ZConnectionException>
         ZConnectionExceptionClass("ZConnectionException",
-            boost::python::init<const string&, const int>())
+            init<const string&, const int>())
     ;
     ZConnectionExceptionClass.add_property("message", &ZConnectionException::getMessage);
-    ZConnectionExceptionClass.add_property("__str__", &ZConnectionException::getMessage);
+    ZConnectionExceptionClass.def("__str__", &ZConnectionException::getMessage);
     ZConnectionExceptionClass.add_property("code", &ZConnectionException::getCode);
 
     cppZConnectionExceptionType = ZConnectionExceptionClass.ptr();
-    boost::python::register_exception_translator<ZConnectionException>
+    register_exception_translator<ZConnectionException>
             (&translatorZConnectionException)
     ;
 
     ////////////////////////////////////////////////////////////////////////////
     class_<ZOptions>("ZOptions")
-        .def("setOption", &ZOptions::setOption)
-        .def("setImplementationName", &ZOptions::setImplementationName)
-        .def("setUser", &ZOptions::setUser)
-        .def("setPassword", &ZOptions::setPassword)
-        .def("setDatabase", &ZOptions::setDatabase)
-        .def("setCharset", &ZOptions::setCharset)
-        .def("setGroup", &ZOptions::setGroup)
-        .def("setSyntax", &ZOptions::setSyntax)
-        .def("setElementSetName", &ZOptions::setElementSetName)
+        .def("set_option", &ZOptions::setOption)
+        .def("set_implementation_name", &ZOptions::setImplementationName)
+        .def("set_user", &ZOptions::setUser)
+        .def("set_password", &ZOptions::setPassword)
+        .def("set_database", &ZOptions::setDatabase)
+        .def("set_charset", &ZOptions::setCharset)
+        .def("set_group", &ZOptions::setGroup)
+        .def("set_syntax", &ZOptions::setSyntax)
+        .def("set_elementset_name", &ZOptions::setElementSetName)
     ;
 
     class_<ZConnection>("ZConnection")
@@ -119,11 +111,12 @@ BOOST_PYTHON_MODULE(yaz4python)
     ;
     
     class_<ZResultSet>("ZResultSet", init<ZConnection *, const ZQuery&>())
-        .def("setOption", &ZResultSet::setOption)
-        .def("getSize", &ZResultSet::getSize)
-        .def("getRecord", &ZResultSet::getRecord, return_value_policy<manage_new_object>())
-        .def("setSetName", &ZResultSet::setSetName)
-        .def("setSchema", &ZResultSet::setSchema)
-        .def("setSyntax", &ZResultSet::setSyntax)
+        .def("set_option", &ZResultSet::setOption)
+        .def("get_size", &ZResultSet::getSize)
+        .def("get_record", &ZResultSet::getRecord, return_value_policy<manage_new_object>())
+        .def("set_set_name", &ZResultSet::setSetName)
+        .def("set_schema", &ZResultSet::setSchema)
+        .def("set_syntax", &ZResultSet::setSyntax)
+        .def("get_records", &ZResultSet::getRecords)
     ;
 }

@@ -1,4 +1,5 @@
 #include "yaz4py.h"
+#include <boost/python.hpp>
 #include <string>
 using namespace std;
 /**
@@ -17,7 +18,7 @@ ZResultSet::ZResultSet(ZConnection *zc, const ZQuery &zq){
     if ((errcode = ZOOM_connection_error(yazc, &errmsg, &addinfo)) != 0) {
     	string emessage(errmsg);
     	string eaddinfo(addinfo);
-    	string message = emessage + " " + eaddinfo;
+    	string message = emessage + ": " + eaddinfo;
         //ZOOM_resultset_destroy(rs);
         throw ZConnectionException(message, errcode);
     }
@@ -38,7 +39,30 @@ int ZResultSet::getSize() const{
 ZRecord* ZResultSet::getRecord(int index){
     
     ZRecord *zr = new ZRecord(this, index);
+    if(zr == NULL){
+        throw RunTimeError("Record object not created");
+    }
     return zr;
+}
+
+boost::python::list ZResultSet::getRecords(size_t index, size_t counts){
+    ZOOM_record *recs = new ZOOM_record[counts];
+    if(recs == NULL){
+        throw RunTimeError("ZOOM_record object not created");
+    }
+    ZOOM_resultset_records (this->rs, recs, index, counts);
+    boost::python::list a;
+    for (int i = 0; i < counts; i++){
+        int len;
+        const char* data = ZOOM_record_get(recs[i], "raw", &len);
+        a.append(string(data, len));
+    }
+
+//    a.append(1);
+//    a.append(2);
+    delete [] recs;
+    recs = NULL;
+    return a;
 }
 
 void ZResultSet::setSetName(const string& param){

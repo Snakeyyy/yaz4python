@@ -7,6 +7,7 @@
 
 #ifndef YAZ4PY_H
 #define	YAZ4PY_H
+#include <boost/python.hpp>
 #include <yaz/zoom.h>
 #include <string>
 #include <boost/noncopyable.hpp>
@@ -15,6 +16,30 @@ using namespace std;
 class ZQuery;
 class ZResultSet;
 class ZRecord;
+
+class RunTimeError: public std::exception{
+    string message;
+    int code;
+public:
+    	RunTimeError(const string &message, const int code = 0){
+		this->message = message;
+		this->code = code;
+	}
+        ~RunTimeError()throw(){ }
+        char const* what() const throw(){return this->message.c_str();}
+        const string getMessage() const{
+            return this->message;
+	}
+        void setMessage(string& message){
+            this->message = message;
+        }
+        void setCode(const int code){
+            this->code = code;
+        }
+
+};
+
+
 class ZException:public std::exception{
 	string message;
 	int code;
@@ -108,7 +133,7 @@ public:
     void setOption(const string &key, const string &value);
     int getSize() const;
     ZRecord* getRecord(int index);
-
+    boost::python::list getRecords(size_t, size_t);
     void setSetName(const string&);
     void setSchema(const string&);
     void setSyntax(const string&);
@@ -120,9 +145,11 @@ class ZRecord{
     friend class ZResultSet;
     ZOOM_record _getYazRecord () const { return zr; }
 public:
+    ZRecord();
     ZRecord(ZResultSet* zrs, int index);
     ~ZRecord();
     void del() {this->~ZRecord();}
+    void setZoomRecord(ZOOM_record azr){zr = azr;}
     string render () const;
     string raw () const;
     string get(const string&);
