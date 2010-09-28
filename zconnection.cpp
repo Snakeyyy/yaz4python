@@ -7,13 +7,15 @@ using namespace std;
  *
  * @param zo
  */
-ZConnection::ZConnection(const ZOptions* zo){
+ZConnection::ZConnection(const ZOptions* zo)
+{
     this->zc = ZOOM_connection_create(zo->_getYazOptions());
     if(this->zc == NULL){
         throw RunTimeError("Connection object not created");
     }
 }
-ZConnection::~ZConnection() {
+ZConnection::~ZConnection()
+{
     ZOOM_connection_destroy(this->zc);
 }
 /**
@@ -21,7 +23,8 @@ ZConnection::~ZConnection() {
  * @param portnum
  * @throw ZConnectionException
  */
-void ZConnection::connect(const string &hostname, int portnum){
+void ZConnection::connect(const string &hostname, int portnum)
+{
 
     ZOOM_connection_connect(this->zc, hostname.c_str(), portnum);
     int errcode;
@@ -39,10 +42,20 @@ void ZConnection::connect(const string &hostname, int portnum){
  * @param zq
  * @return
  */
-ZResultSet* ZConnection::search(const ZQuery &zq){
+const ZResultSet* ZConnection::search(const ZQuery &zq)
+{
     ZResultSet *rs = new ZResultSet(this, zq);
     if(rs == NULL){
         throw RunTimeError("Result set object not created");
     }
     return rs;
+}
+
+const ZScanSet* ZConnection::scan(const ZQuery &zq)
+{
+    ZScanSet *zss = new ZScanSet(this, zq);
+    if(zss == NULL){
+        throw RunTimeError("Scan set object not created");
+    }
+    return zss;
 }

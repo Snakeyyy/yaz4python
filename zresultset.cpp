@@ -8,7 +8,8 @@ using namespace std;
  * @param zq
  * @throw ZConnectionException
  */
-ZResultSet::ZResultSet(ZConnection *zc, const ZQuery &zq){
+ZResultSet::ZResultSet(ZConnection *zc, const ZQuery &zq)
+{
     ZOOM_connection yazc = zc->_getYazConnection();
     this->rs = ZOOM_connection_search(yazc, zq._getYazQuery());
 
@@ -24,19 +25,23 @@ ZResultSet::ZResultSet(ZConnection *zc, const ZQuery &zq){
     }
 }
 
-ZResultSet::~ZResultSet(){
+ZResultSet::~ZResultSet()
+{
     ZOOM_resultset_destroy(rs);
 }
 
 
-void ZResultSet::setOption(const string &key, const string &value){
+void ZResultSet::setOption(const string &key, const string &value)
+{
     ZOOM_resultset_option_set(this->rs, key.c_str(), value.c_str());
 }
-int ZResultSet::getSize() const{
+int ZResultSet::getSize() const
+{
     return ZOOM_resultset_size(this->rs);
 }
 
-ZRecord* ZResultSet::getRecord(int index){
+ZRecord* ZResultSet::getRecord(int index)
+{
     
     ZRecord *zr = new ZRecord(this, index);
     if(zr == NULL){
@@ -45,7 +50,8 @@ ZRecord* ZResultSet::getRecord(int index){
     return zr;
 }
 
-boost::python::list ZResultSet::getRecords(size_t index, size_t counts){
+boost::python::list ZResultSet::getRecords(size_t index, size_t counts)
+{
     ZOOM_record *recs = new ZOOM_record[counts];
     if(recs == NULL){
         throw RunTimeError("ZOOM_record object not created");
@@ -58,21 +64,22 @@ boost::python::list ZResultSet::getRecords(size_t index, size_t counts){
         a.append(string(data, len));
     }
 
-//    a.append(1);
-//    a.append(2);
     delete [] recs;
     recs = NULL;
     return a;
 }
 
-void ZResultSet::setSetName(const string& param){
+void ZResultSet::setSetName(const string& param)
+{
     this->setOption("setname", param);
 }
 
-void ZResultSet::setSchema(const string& param){
+void ZResultSet::setSchema(const string& param)
+{
     this->setOption("schema", param);
 }
 
-void ZResultSet::setSyntax(const string& param){
+void ZResultSet::setSyntax(const string& param)
+{
     this->setOption("preferredRecordSyntax", param);
 }

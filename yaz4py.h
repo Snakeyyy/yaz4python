@@ -16,6 +16,7 @@ using namespace std;
 class ZQuery;
 class ZResultSet;
 class ZRecord;
+class ZScanSet;
 
 class RunTimeError: public std::exception{
     string message;
@@ -102,18 +103,21 @@ public:
 class ZConnection{
     ZOOM_connection zc;
     friend class ZResultSet;
+    friend class ZScanSet;
     ZOOM_connection _getYazConnection() const {return zc;}
 public:
     //ZConnection();
     ZConnection(const ZOptions *zo = 0);
     ~ZConnection ();
     void connect (const string &hostname, int portnum);
-    ZResultSet* search(const ZQuery &zq);
+    const ZResultSet* search(const ZQuery &zq);
+    const ZScanSet* scan(const ZQuery &zq);
 };
 
 class ZQuery{
     ZOOM_query q;
     friend class ZResultSet;
+    friend class ZScanSet;
     ZOOM_query _getYazQuery () const { return q; }
 public:
     ZQuery(const string &query);
@@ -137,6 +141,23 @@ public:
     void setSetName(const string&);
     void setSchema(const string&);
     void setSyntax(const string&);
+};
+
+class ZScanSet{
+    ZOOM_scanset ss;
+
+    friend class ZConnection;
+    //friend class ZRecord; // for _getYazResultSet() & _getYazConnection()
+    ZOOM_scanset _getYazScanSet () const { return ss; }
+public:
+    ZScanSet(ZConnection *zc, const ZQuery &zq);
+    ~ZScanSet();
+    void setOption(const string &key, const string &value);
+    string getOption(const string& key);
+    size_t getSize() const;
+    string term(const size_t index);
+    string displayTerm(const size_t index);
+    boost::python::list terms();
 };
 
 class ZRecord{
