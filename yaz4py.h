@@ -13,10 +13,12 @@
 #include <boost/noncopyable.hpp>
 #include <stdexcept>
 using namespace std;
+
 class ZQuery;
 class ZResultSet;
 class ZRecord;
 class ZScanSet;
+class ZPackage;
 
 class RunTimeError: public std::exception{
     string message;
@@ -84,6 +86,7 @@ public:
 class ZOptions{
     ZOOM_options zo;
     friend class ZConnection;
+    friend class ZPackage;
     ZOOM_options _getYazOptions() const {return zo;}
 public:
     ZOptions();
@@ -104,6 +107,7 @@ class ZConnection{
     ZOOM_connection zc;
     friend class ZResultSet;
     friend class ZScanSet;
+    friend class ZPackage;
     ZOOM_connection _getYazConnection() const {return zc;}
 public:
     //ZConnection();
@@ -175,6 +179,21 @@ public:
     string raw () const;
     string get(const string&);
 
+};
+
+class ZPackage{
+    ZOOM_package package;
+    ZConnection *zc; 
+    friend class ZConnection;
+    //friend class ZRecord; // for _getYazResultSet() & _getYazConnection()
+    ZOOM_package _getYazPackage () const { return package; }
+public:
+    ZPackage(ZConnection *zc);
+    ZPackage(ZConnection *zc, const ZOptions &zo);
+    ~ZPackage();
+    void setOption(const string &key, const string &value);
+    string getOption(const string& key);
+    void send(const string& type);
 };
 #endif	/* YAZ4PY_H */
 

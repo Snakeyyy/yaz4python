@@ -99,6 +99,7 @@ BOOST_PYTHON_MODULE(yaz4python)
         .def(init<const ZOptions *>())
         .def("connect", &ZConnection::connect)
         .def("search", &ZConnection::search, return_value_policy<manage_new_object>())
+        .def("scan", &ZConnection::scan, return_value_policy<manage_new_object>())
     ;
 
     class_<ZQuery>("ZQuery", init<const string &>())
@@ -118,5 +119,19 @@ BOOST_PYTHON_MODULE(yaz4python)
         .def("set_schema", &ZResultSet::setSchema)
         .def("set_syntax", &ZResultSet::setSyntax)
         .def("get_records", &ZResultSet::getRecords)
+    ;
+    class_<ZScanSet>("ZScanSet", init<ZConnection *, const ZQuery&>())
+        .def("set_option", &ZScanSet::setOption)
+        .def("get_option", &ZScanSet::getOption)
+        .def("get_size", &ZScanSet::getSize)
+        .def("term", &ZScanSet::term)
+        .def("display_term", &ZScanSet::displayTerm)
+        .def("terms", &ZScanSet::terms)
+    ;
+    class_<ZPackage>("ZPackage", init<ZConnection *, const ZOptions &>())
+        .def(init<ZConnection *>())
+        .def("set_option", &ZPackage::setOption)
+        .def("get_option", &ZPackage::getOption)
+        .def("send", &ZPackage::send)
     ;
 }
