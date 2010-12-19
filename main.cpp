@@ -100,6 +100,8 @@ BOOST_PYTHON_MODULE(yaz4python)
         .def("connect", &ZConnection::connect)
         .def("search", &ZConnection::search, return_value_policy<manage_new_object>())
         .def("scan", &ZConnection::scan, return_value_policy<manage_new_object>())
+        .def("set_option", &ZConnection::setOption)
+        .def("get_option", &ZConnection::getOption)
     ;
 
     class_<ZQuery>("ZQuery", init<const string &>())

@@ -116,6 +116,8 @@ public:
     void connect (const string &hostname, int portnum);
     const ZResultSet* search(const ZQuery &zq);
     const ZScanSet* scan(const ZQuery &zq);
+	void setOption(const string &key, const string &value);
+	string getOption(const string& key);
 };
 
 class ZQuery{

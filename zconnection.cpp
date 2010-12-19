@@ -59,3 +59,14 @@ const ZScanSet* ZConnection::scan(const ZQuery &zq)
     }
     return zss;
 }
+
+void ZConnection::setOption(const string& key, const string& value)
+{
+	ZOOM_connection_option_set(this->zc, key.c_str(), value.c_str());
+}
+
+string ZConnection::getOption(const string& key)
+{
+    const char* value = ZOOM_connection_option_get(this->zc, key.c_str());
+    return string(value);
+}
